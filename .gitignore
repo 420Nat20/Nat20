@@ -173,3 +173,5 @@ Thumbs.db
 
 # End of https://www.toptal.com/developers/gitignore/api/go,python
 do-config.yaml
+api/tmp/main
+**/.env

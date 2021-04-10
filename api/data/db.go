@@ -1,19 +1,26 @@
 package data
 
 import (
-	"gorm.io/driver/sqlite"
+	"os"
+
+	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 // Open a database connection.
 func NewDB() *gorm.DB {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	err := godotenv.Load()
+	db, err := gorm.Open(postgres.Open(os.Getenv("DB_DSN")), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
 
 	// Migrate the schema
 	db.AutoMigrate(
+		&GameModel{},
+		&LocationModel{},
+		&SubLocationModel{},
 		&UserModel{},
 	)
 

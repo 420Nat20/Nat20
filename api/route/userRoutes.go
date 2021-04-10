@@ -13,14 +13,14 @@ import (
 
 // ItemRoutes attaches routes for the item package to a router.
 func (c *BaseController) RegisterUsers() {
-	c.Router.HandleFunc("/", c.getAll).Methods("GET")
-	c.Router.HandleFunc("/{id}", c.get).Methods("GET")
-	c.Router.HandleFunc("/", c.post).Methods("POST")
-	c.Router.HandleFunc("/{id}", c.update).Methods("UPDATE")
-	c.Router.HandleFunc("/{id}", c.delete).Methods("DELETE")
+	c.Router.HandleFunc("/", c.getAllUsers).Methods("GET")
+	c.Router.HandleFunc("/{id}", c.getUser).Methods("GET")
+	c.Router.HandleFunc("/", c.postUser).Methods("POST")
+	c.Router.HandleFunc("/{id}", c.updateUser).Methods("UPDATE")
+	c.Router.HandleFunc("/{id}", c.deleteUser).Methods("DELETE")
 }
 
-func (c *BaseController) getAll(w http.ResponseWriter, r *http.Request) {
+func (c *BaseController) getAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
 	items, err := service.GetAllUserModels(c.DB)
@@ -32,9 +32,14 @@ func (c *BaseController) getAll(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(items)
 }
 
-func (c *BaseController) get(w http.ResponseWriter, r *http.Request) {
+func (c *BaseController) getUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Add("Content-Type", "application/json")
 
 	item, err := service.GetUserModelByID(c.DB, id)
@@ -46,17 +51,23 @@ func (c *BaseController) get(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-func (c *BaseController) post(w http.ResponseWriter, r *http.Request) {
+func (c *BaseController) postUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
+	params := mux.Vars(r)
+	gameId, err := strconv.Atoi(params["gameId"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	var newItem data.UserModel
-	err := json.NewDecoder(r.Body).Decode(&newItem)
+	err = json.NewDecoder(r.Body).Decode(&newItem)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = service.CreateUserModel(c.DB, &newItem)
+	err = service.CreateUserModel(c.DB, gameId, &newItem)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -65,17 +76,23 @@ func (c *BaseController) post(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newItem)
 }
 
-func (c *BaseController) update(w http.ResponseWriter, r *http.Request) {
+func (c *BaseController) updateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
+	params := mux.Vars(r)
+	gameId, err := strconv.Atoi(params["gameId"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	var newItem data.UserModel
-	err := json.NewDecoder(r.Body).Decode(&newItem)
+	err = json.NewDecoder(r.Body).Decode(&newItem)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = service.UpdateUserModel(c.DB, &newItem)
+	err = service.UpdateUserModel(c.DB, gameId, &newItem)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -84,7 +101,7 @@ func (c *BaseController) update(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newItem)
 }
 
-func (c *BaseController) delete(w http.ResponseWriter, r *http.Request) {
+func (c *BaseController) deleteUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, err := strconv.Atoi(params["id"])
 	w.Header().Add("Content-Type", "application/json")

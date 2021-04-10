@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type UserModel struct {
 	gorm.Model
-	GameID int
+	GameModelID uint
 
 	Name       string `gorm:"not null"`
 	Class      string `gorm:"not null"`

@@ -32,11 +32,23 @@ func main() {
 
 func attachControllers(c *route.BaseController) {
 	// Add subrouters
+	gamesController := &route.BaseController{
+		DB:     c.DB,
+		Router: c.Router.NewRoute().PathPrefix("/games").Subrouter(),
+	}
+	gamesController.RegisterGames()
+
 	userController := &route.BaseController{
 		DB:     c.DB,
-		Router: c.Router.NewRoute().PathPrefix("/users").Subrouter(),
+		Router: c.Router.NewRoute().PathPrefix("/games/{gameId}/users").Subrouter(),
 	}
 	userController.RegisterUsers()
+
+	locationsController := &route.BaseController{
+		DB:     c.DB,
+		Router: c.Router.NewRoute().PathPrefix("/games/{gameId}/locations").Subrouter(),
+	}
+	locationsController.RegisterGames()
 }
 
 func HelloServer(w http.ResponseWriter, r *http.Request) {

@@ -18,13 +18,21 @@ func GetUserModelByID(db *gorm.DB, id int) (data.UserModel, error) {
 	return item, err
 }
 
-func CreateUserModel(db *gorm.DB, item *data.UserModel) error {
-	err := db.Create(item).Error
+func CreateUserModel(db *gorm.DB, gameId int, item *data.UserModel) error {
+	game, err := GetGameModelByServerID(db, gameId)
+	if err != nil {
+		return err
+	}
+	err = db.Model(&game).Association("Users").Append(item)
 	return err
 }
 
-func UpdateUserModel(db *gorm.DB, item *data.UserModel) error {
-	err := db.Model(item).Updates(*item).Error
+func UpdateUserModel(db *gorm.DB, gameId int, item *data.UserModel) error {
+	game, err := GetGameModelByServerID(db, gameId)
+	if err != nil {
+		return err
+	}
+	err = db.Model(&game).Association("Users").Replace(item)
 	return err
 }
 
