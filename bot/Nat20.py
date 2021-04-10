@@ -14,7 +14,10 @@ command_message = f.read()
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
-client = commands.Bot(command_prefix=PREFIX)
+
+intents = discord.Intents.default()
+intents.members = True
+client = commands.Bot(command_prefix=PREFIX, intents=intents)
 
 
 @client.event
@@ -91,6 +94,11 @@ async def locations(ctx):
 
 
 @client.command()
+async def sublocations(ctx):
+    await ctx.message.channel.send('sublocations')
+
+
+@client.command()
 async def end_encounter(ctx):
     author = ctx.message.author
     roles = author.roles
@@ -123,6 +131,21 @@ async def travel(ctx):
 
     roles = ctx.message.guild.roles
 
+    author_roles = author.roles
+    for role in author_roles:
+        if role.name != '@everyone' and role.name != 'DM':
+            await author.remove_roles(role)
+            if len(role.members) == 0:
+                await role.delete()
+                if '_' in role.name:
+                    if '_' == ctx.message.channel.name:
+                        await ctx.message.channel.delete()
+                    else:
+                        for channel in ctx.message.guild.text_channels:
+                            if channel.name == role.name:
+                                await channel.delete()
+                                break
+
     location_role = None
     for temp in roles:
         if temp.name == location:
@@ -131,18 +154,18 @@ async def travel(ctx):
 
     if location_role is None:
         await create_role(ctx, location)
-        await create_role(ctx, f'{location}-general')
-        await create_channel(ctx, f'{location}-general')
+        await create_role(ctx, f'{location}_general')
+        await create_channel(ctx, f'{location}_general')
     else:
         general_role = None
         for temp in roles:
-            if temp.name == f'{location}-general':
+            if temp.name == f'{location}_general':
                 general_role = temp
                 break
 
         if general_role is None:
-            create_role(ctx, f'{location}-general')
-            await create_channel(ctx, f'{location}-general')
+            create_role(ctx, f'{location}_general')
+            await create_channel(ctx, f'{location}_general')
         else:
             await add_roles(general_role)
 
@@ -167,27 +190,32 @@ async def enter(ctx):
     role = None
 
     for temp in roles:
-        if '-' not in temp.name and temp.name != '@everyone':
+        if '_' not in temp.name and temp.name != '@everyone' and temp.name != 'DM':
             location = temp
             break
 
     for temp in roles:
-        if temp.name == f'{location.name}-{sublocation}':
+        if temp.name == f'{location.name}_{sublocation}':
             role = temp
             break
 
     for temp in author_roles:
-        if '-' in temp.name:
+        if '_' in temp.name:
             await author.remove_roles(temp)
-            members = temp.members
-            if len(members) == 0:
-                await ctx.message.channel.delete()
+            if len(temp.members) == 0:
+                if '_' == ctx.message.channel.name:
+                    await ctx.message.channel.delete()
+                else:
+                    for channel in ctx.message.guild.text_channels:
+                        if channel.name == temp.name:
+                            await channel.delete()
+                            break
                 await temp.delete()
 
 
     if role is None:
-        await create_role(ctx, f'{location.name}-{sublocation}')
-        await create_channel(ctx, f'{location.name}-{sublocation}')
+        await create_role(ctx, f'{location.name}_{sublocation}')
+        await create_channel(ctx, f'{location.name}_{sublocation}')
     else:
         await author.add_roles(role)
 
