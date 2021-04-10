@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"nat-20/data"
 	"nat-20/route"
@@ -18,7 +17,6 @@ func main() {
 	}
 
 	attachControllers(server)
-	server.Router.HandleFunc("/", HelloServer).Methods("GET")
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -49,8 +47,4 @@ func attachControllers(c *route.BaseController) {
 		Router: c.Router.NewRoute().PathPrefix("/games/{gameId}/locations").Subrouter(),
 	}
 	locationsController.RegisterLocations()
-}
-
-func HelloServer(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello there.")
 }

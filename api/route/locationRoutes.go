@@ -13,11 +13,11 @@ import (
 
 // ItemRoutes attaches routes for the item package to a router.
 func (c *BaseController) RegisterLocations() {
-	c.Router.HandleFunc("/", c.getAllGames).Methods("GET")
-	c.Router.HandleFunc("/{id}", c.getGame).Methods("GET")
-	c.Router.HandleFunc("/", c.postGame).Methods("POST")
-	c.Router.HandleFunc("/{id}", c.updateGame).Methods("UPDATE")
-	c.Router.HandleFunc("/{id}", c.deleteGame).Methods("DELETE")
+	c.Router.HandleFunc("/", c.getAllLocations).Methods("GET")
+	c.Router.HandleFunc("/{id}", c.getLocation).Methods("GET")
+	c.Router.HandleFunc("/", c.postLocation).Methods("POST")
+	c.Router.HandleFunc("/{id}", c.updateLocation).Methods("UPDATE")
+	c.Router.HandleFunc("/{id}", c.deleteLocation).Methods("DELETE")
 }
 
 func (c *BaseController) getAllLocations(w http.ResponseWriter, r *http.Request) {
