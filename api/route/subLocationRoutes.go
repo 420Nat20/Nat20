@@ -13,11 +13,11 @@ import (
 
 // ItemRoutes attaches routes for the item package to a router.
 func (c *BaseController) RegisterSubLocations() {
-	c.Router.HandleFunc("/", c.getAllGames).Methods("GET")
-	c.Router.HandleFunc("/{id}", c.getGame).Methods("GET")
-	c.Router.HandleFunc("/", c.postGame).Methods("POST")
-	c.Router.HandleFunc("/{id}", c.updateGame).Methods("UPDATE")
-	c.Router.HandleFunc("/{id}", c.deleteGame).Methods("DELETE")
+	c.Router.HandleFunc("/", c.getAllSubLocations).Methods("GET")
+	c.Router.HandleFunc("/{id}", c.getSubLocation).Methods("GET")
+	c.Router.HandleFunc("/", c.postSubLocation).Methods("POST")
+	c.Router.HandleFunc("/{id}", c.updateSubLocation).Methods("UPDATE")
+	c.Router.HandleFunc("/{id}", c.deleteSubLocation).Methods("DELETE")
 }
 
 func (c *BaseController) getAllSubLocations(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +49,7 @@ func (c *BaseController) getSubLocation(w http.ResponseWriter, r *http.Request) 
 func (c *BaseController) postSubLocation(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	params := mux.Vars(r)
-	gameId, err := strconv.Atoi(params["gameId"])
+	gameId, err := strconv.Atoi(params["locationId"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -74,7 +74,7 @@ func (c *BaseController) postSubLocation(w http.ResponseWriter, r *http.Request)
 func (c *BaseController) updateSubLocation(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	params := mux.Vars(r)
-	gameId, err := strconv.Atoi(params["gameId"])
+	gameId, err := strconv.Atoi(params["locationId"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

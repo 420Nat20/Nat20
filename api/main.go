@@ -50,7 +50,7 @@ func attachControllers(c *route.BaseController) {
 
 	subLocationsController := &route.BaseController{
 		DB:     c.DB,
-		Router: c.Router.NewRoute().PathPrefix("/games/{gameId}/locations/{locationId}").Subrouter(),
+		Router: c.Router.NewRoute().PathPrefix("/games/{gameId}/locations/{locationId}/sublocations").Subrouter(),
 	}
 	subLocationsController.RegisterSubLocations()
 }
