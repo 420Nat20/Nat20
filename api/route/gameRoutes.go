@@ -18,12 +18,6 @@ func (c *BaseController) RegisterGames() {
 	c.Router.HandleFunc("/", c.postGame).Methods("POST")
 	c.Router.HandleFunc("/{id}", c.updateGame).Methods("UPDATE")
 	c.Router.HandleFunc("/{id}", c.deleteGame).Methods("DELETE")
-
-	c.Router.HandleFunc("/locations/", c.getAllGames).Methods("GET")
-	c.Router.HandleFunc("/locations/{id}", c.getGame).Methods("GET")
-	c.Router.HandleFunc("/locations/", c.postGame).Methods("POST")
-	c.Router.HandleFunc("/locations/{id}", c.updateGame).Methods("UPDATE")
-	c.Router.HandleFunc("/locations/{id}", c.deleteGame).Methods("DELETE")
 }
 
 func (c *BaseController) getAllGames(w http.ResponseWriter, r *http.Request) {

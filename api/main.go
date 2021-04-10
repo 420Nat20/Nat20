@@ -48,7 +48,7 @@ func attachControllers(c *route.BaseController) {
 		DB:     c.DB,
 		Router: c.Router.NewRoute().PathPrefix("/games/{gameId}/locations").Subrouter(),
 	}
-	locationsController.RegisterGames()
+	locationsController.RegisterLocations()
 }
 
 func HelloServer(w http.ResponseWriter, r *http.Request) {

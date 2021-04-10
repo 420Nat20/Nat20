@@ -48,15 +48,21 @@ func (c *BaseController) getLocation(w http.ResponseWriter, r *http.Request) {
 
 func (c *BaseController) postLocation(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
+	params := mux.Vars(r)
+	gameId, err := strconv.Atoi(params["gameId"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	var newItem data.LocationModel
-	err := json.NewDecoder(r.Body).Decode(&newItem)
+	err = json.NewDecoder(r.Body).Decode(&newItem)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = service.CreateLocationModel(c.DB, &newItem)
+	err = service.CreateLocationModel(c.DB, gameId, &newItem)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -67,15 +73,21 @@ func (c *BaseController) postLocation(w http.ResponseWriter, r *http.Request) {
 
 func (c *BaseController) updateLocation(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
+	params := mux.Vars(r)
+	gameId, err := strconv.Atoi(params["gameId"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	var newItem data.LocationModel
-	err := json.NewDecoder(r.Body).Decode(&newItem)
+	err = json.NewDecoder(r.Body).Decode(&newItem)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = service.UpdateLocationModel(c.DB, &newItem)
+	err = service.UpdateLocationModel(c.DB, gameId, &newItem)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
