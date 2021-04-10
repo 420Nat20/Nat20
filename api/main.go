@@ -20,7 +20,13 @@ func main() {
 	attachControllers(server)
 	server.Router.HandleFunc("/", HelloServer).Methods("GET")
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), server.Router))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+		log.Printf("defaulting to port %s", port)
+	}
+
+	log.Fatal(http.ListenAndServe(":"+port, server.Router))
 }
 
 func attachControllers(c *route.BaseController) {
