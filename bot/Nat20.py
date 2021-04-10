@@ -18,6 +18,11 @@ async def on_ready():
 
 @client.command()
 async def roll(ctx):
+    """
+    Command used for rolling dice
+    :param ctx: context for the command
+    :return: None
+    """
     valid_dice = ['4', '6', '8', '10', '12', '20']
     author = ctx.message.author
     message = ctx.message.content
@@ -50,5 +55,31 @@ async def roll(ctx):
             sum += randint(1, split[1] + 1)
 
     await ctx.message.channel.send(f'<@{author.id}>, The sum of your {message} is {sum}')
+
+
+@client.command()
+async def register(ctx):
+    """
+    Command used to register a character
+    :param ctx: context for the command
+    :return: None
+    """
+    pass
+
+
+@client.command()
+async def travel(ctx):
+    pass
+
+
+@client.command()
+async def enter(ctx):
+    pass
+
+async def create_channel(channel_name):
+    pass
+
+async def create_role(role_name):
+    pass
 
 client.run(TOKEN)
