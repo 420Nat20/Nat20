@@ -2,34 +2,29 @@ package main
 
 import (
 	"log"
+	"nat-20/data"
+	"nat-20/route"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"gorm.io/gorm"
 )
 
-// Server type holds information about the main server instance.
-type Server struct {
-	DB     *gorm.DB
-	Router *mux.Router
-}
-
 func main() {
-	server := &Server{
-		DB:     newDB(),
+	server := &route.BaseController{
+		DB:     data.NewDB(),
 		Router: mux.NewRouter().StrictSlash(true),
 	}
 
-	server.attachControllers()
+	attachControllers(server)
 
 	log.Fatal(http.ListenAndServe(":8000", server.Router))
 }
 
-func (s *Server) attachControllers() {
+func attachControllers(c *route.BaseController) {
 	// Add subrouters
-	// userController := &taskitem.ItemController{
-	// 	DB:     s.DB,
-	// 	Router: s.Router.NewRoute().PathPrefix("/tasks").Subrouter(),
-	// }
-	// userController.Register()
+	userController := &route.BaseController{
+		DB:     c.DB,
+		Router: c.Router.NewRoute().PathPrefix("/users").Subrouter(),
+	}
+	userController.RegisterUsers()
 }
