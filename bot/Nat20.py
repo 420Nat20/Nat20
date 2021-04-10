@@ -91,9 +91,32 @@ async def locations(ctx):
 
 
 @client.command()
+async def end_encounter(ctx):
+    author = ctx.message.author
+    roles = author.roles
+    dm = False
+    for role in roles:
+        if role.name == 'DM':
+            dm = True
+            break
+
+    if not dm:
+        await ctx.message.channel.send(f'<@{author.id}>, You do not have permission to end encounters')
+
+    members = ctx.message.channel.members
+
+    for member in members:
+        roles = member.roles
+        for role in roles:
+            if 'encounter' in role.name:
+                await member.remove_roles(role)
+
+    await ctx.message.channel.delete()
+
+
+@client.command()
 async def travel(ctx):
     author = ctx.message.author
-    print(author)
     message = ctx.message.content
 
     location = message.replace('!travel ', '')
@@ -121,14 +144,52 @@ async def travel(ctx):
             create_role(ctx, f'{location}-general')
             await create_channel(ctx, f'{location}-general')
         else:
-            await ctx.message.author.add_roles(general_role)
+            await add_roles(general_role)
 
-        await ctx.message.author.add_roles(location_role)
+        await author.add_roles(location_role)
 
 
 @client.command()
 async def enter(ctx):
-    pass
+    """
+    Enter a sublocation
+    :param ctx: context of the message
+    :return: None
+    """
+    author = ctx.message.author
+    message = ctx.message.content
+
+    sublocation = message.replace('!enter ', '')
+
+    roles = ctx.message.guild.roles
+    author_roles = author.roles
+    location = None
+    role = None
+
+    for temp in roles:
+        if '-' not in temp.name and temp.name != '@everyone':
+            location = temp
+            break
+
+    for temp in roles:
+        if temp.name == f'{location.name}-{sublocation}':
+            role = temp
+            break
+
+    for temp in author_roles:
+        if '-' in temp.name:
+            await author.remove_roles(temp)
+            members = temp.members
+            if len(members) == 0:
+                await ctx.message.channel.delete()
+                await temp.delete()
+
+
+    if role is None:
+        await create_role(ctx, f'{location.name}-{sublocation}')
+        await create_channel(ctx, f'{location.name}-{sublocation}')
+    else:
+        await author.add_roles(role)
 
 
 async def create_channel(ctx, channel_name):
@@ -149,7 +210,6 @@ async def create_channel(ctx, channel_name):
         print('Role not found')
         return
 
-    print(role)
     overwrites = {
         ctx.message.guild.default_role: discord.PermissionOverwrite(read_messages=False),
         ctx.message.guild.me: discord.PermissionOverwrite(read_messages=True),
@@ -161,5 +221,6 @@ async def create_channel(ctx, channel_name):
 async def create_role(ctx, role_name):
     role = await ctx.message.guild.create_role(name=role_name)
     await ctx.message.author.add_roles(role)
+
 
 client.run(TOKEN)
