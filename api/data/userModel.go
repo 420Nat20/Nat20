@@ -6,6 +6,8 @@ type UserModel struct {
 	gorm.Model
 	GameModelID uint
 
+	DiscordID int `gorm:"unique"`
+
 	Name       string `gorm:"not null"`
 	Class      string `gorm:"not null"`
 	Background string `gorm:"not null"`

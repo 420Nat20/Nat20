@@ -42,7 +42,7 @@ func (c *BaseController) getUser(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 
-	item, err := service.GetUserModelByID(c.DB, id)
+	item, err := service.GetUserModelByDiscordID(c.DB, id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

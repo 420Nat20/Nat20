@@ -12,9 +12,9 @@ func GetAllUserModels(db *gorm.DB) ([]data.UserModel, error) {
 	return items, err
 }
 
-func GetUserModelByID(db *gorm.DB, id int) (data.UserModel, error) {
+func GetUserModelByDiscordID(db *gorm.DB, id int) (data.UserModel, error) {
 	var item data.UserModel
-	err := db.First(&item, id).Error
+	err := db.Where("discord_id = ?", id).First(&item).Error
 	return item, err
 }
 
