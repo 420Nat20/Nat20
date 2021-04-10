@@ -26,6 +26,7 @@ func main() {
 		log.Printf("defaulting to port %s", port)
 	}
 
+	log.Printf("Listening on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, server.Router))
 }
 
