@@ -27,7 +27,7 @@ func main() {
 	}
 
 	log.Printf("Listening on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, server.Router))
+	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, server.Router))
 }
 
 func attachControllers(c *route.BaseController) {
