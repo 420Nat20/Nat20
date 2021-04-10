@@ -1,0 +1,9 @@
+name: nat-20
+services:
+  - name: api
+    github:
+      repo: 420Nat20/Nat20
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: api/Dockerfile
+    source_dir: api

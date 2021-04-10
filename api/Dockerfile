@@ -1,33 +1,27 @@
-# Use the offical golang image to create a binary.
-# This is based on Debian and sets the GOPATH to /go.
-# https://hub.docker.com/_/golang
-FROM golang:1.16-buster as builder
+FROM golang
 
-# Create and change to the app directory.
-WORKDIR /app
+# Move to working directory /build
+WORKDIR /build
 
-# Retrieve application dependencies.
-# This allows the container build to reuse cached dependencies.
-# Expecting to copy go.mod and if present go.sum.
-COPY go.* ./
+# Copy and download dependency using go mod
+COPY go.mod .
+COPY go.sum .
 RUN go mod download
 
-# Copy local code to the container image.
-COPY . ./
+# Copy the code into the container
+COPY . .
 
-# Build the binary.
-RUN go build -v -o server
+# Build the application
+RUN go build -o main .
 
-# Use the official Debian slim image for a lean production container.
-# https://hub.docker.com/_/debian
-# https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds
-FROM debian:buster-slim
-RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+# Move to /dist directory as the place for resulting binary folder
+WORKDIR /dist
 
-# Copy the binary to the production image from the builder stage.
-COPY --from=builder /app/server /app/server
+# Copy binary from build to main folder
+RUN cp /build/main .
 
-# Run the web service on container startup.
-CMD ["/app/server"]
+# Export necessary port
+EXPOSE $PORT
+
+# Command to run when starting the container
+CMD ["/dist/main"]
