@@ -18,6 +18,7 @@ func main() {
 	}
 
 	attachControllers(server)
+	server.Router.HandleFunc("/", HelloServer).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), server.Router))
 }
@@ -29,4 +30,8 @@ func attachControllers(c *route.BaseController) {
 		Router: c.Router.NewRoute().PathPrefix("/users").Subrouter(),
 	}
 	userController.RegisterUsers()
+}
+
+func HelloServer(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello there.")
 }
