@@ -5,7 +5,7 @@ from random import randint
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-
+# import requests
 
 PREFIX='!'
 
@@ -18,6 +18,8 @@ TOKEN = os.getenv('TOKEN')
 intents = discord.Intents.default()
 intents.members = True
 client = commands.Bot(command_prefix=PREFIX, intents=intents)
+
+base_endpoint_url = 'https://nat-20-y48jw.ondigitalocean.app/'
 
 
 @client.event
@@ -79,7 +81,7 @@ async def register(ctx):
     :param ctx: context for the command
     :return: None
     """
-    pass
+    await ctx.message.author.send(f'Follow this link to register your character.')
 
 
 @client.command()
@@ -101,15 +103,11 @@ async def sublocations(ctx):
 @client.command()
 async def end_encounter(ctx):
     author = ctx.message.author
-    roles = author.roles
-    dm = False
-    for role in roles:
-        if role.name == 'DM':
-            dm = True
-            break
+    dm = discord.utils.get(author.roles, name='DM')
 
     if not dm:
         await ctx.message.channel.send(f'<@{author.id}>, You do not have permission to end encounters')
+        return
 
     members = ctx.message.channel.members
 
@@ -129,8 +127,6 @@ async def travel(ctx):
 
     location = message.replace('!travel ', '')
 
-    roles = ctx.message.guild.roles
-
     author_roles = author.roles
     for role in author_roles:
         if role.name != '@everyone' and role.name != 'DM':
@@ -138,36 +134,27 @@ async def travel(ctx):
             if len(role.members) == 0:
                 await role.delete()
                 if '_' in role.name:
-                    if '_' == ctx.message.channel.name:
+                    if '_' in ctx.message.channel.name:
                         await ctx.message.channel.delete()
                     else:
-                        for channel in ctx.message.guild.text_channels:
-                            if channel.name == role.name:
-                                await channel.delete()
-                                break
+                        channel = discord.utils.get(ctx.message.guild.text_channels, name=role.name)
+                        if channel is not None:
+                            await channel.delete()
 
-    location_role = None
-    for temp in roles:
-        if temp.name == location:
-            location_role = temp
-            break
+    location_role = discord.utils.get(ctx.message.guild.roles, name=location)
 
     if location_role is None:
         await create_role(ctx, location)
         await create_role(ctx, f'{location}_general')
         await create_channel(ctx, f'{location}_general')
     else:
-        general_role = None
-        for temp in roles:
-            if temp.name == f'{location}_general':
-                general_role = temp
-                break
+        general_role = discord.utils.get(ctx.message.guild.roles, name=f'{location}_general')
 
         if general_role is None:
             create_role(ctx, f'{location}_general')
             await create_channel(ctx, f'{location}_general')
         else:
-            await add_roles(general_role)
+            await author.add_roles(general_role)
 
         await author.add_roles(location_role)
 
@@ -187,17 +174,13 @@ async def enter(ctx):
     roles = ctx.message.guild.roles
     author_roles = author.roles
     location = None
-    role = None
 
     for temp in roles:
         if '_' not in temp.name and temp.name != '@everyone' and temp.name != 'DM':
             location = temp
             break
 
-    for temp in roles:
-        if temp.name == f'{location.name}_{sublocation}':
-            role = temp
-            break
+    role = discord.utils.get(ctx.message.guild.roles, name=f'{location.name}_{sublocation}')
 
     for temp in author_roles:
         if '_' in temp.name:
@@ -206,10 +189,9 @@ async def enter(ctx):
                 if '_' == ctx.message.channel.name:
                     await ctx.message.channel.delete()
                 else:
-                    for channel in ctx.message.guild.text_channels:
-                        if channel.name == temp.name:
-                            await channel.delete()
-                            break
+                    channel = discord.utils.get(ctx.message.guild.text_channels, name=temp.name)
+                    if channel is not None:
+                        await channel.delete()
                 await temp.delete()
 
 
@@ -227,12 +209,7 @@ async def create_channel(ctx, channel_name):
     :param channel_name: name for the channel to be created
     :return: None
     """
-    roles = ctx.message.guild.roles
-    role = None
-    for temp in roles:
-        if temp.name == channel_name:
-            role = temp
-            break
+    role = discord.utils.get(ctx.message.guild.roles, name=channel_name)
 
     if role is None:
         print('Role not found')
