@@ -1,0 +1,7 @@
+name: nat-20
+services:
+  - name: api
+    git:
+      repo_clone_url: https://github.com/420Nat20/Nat20.git
+      branch: main
+    dockerfile_path: api/Dockerfile
