@@ -6,6 +6,7 @@ Nat20 is a discord bot developed with the sole purpose of running asynchronous D
 
 ### Team Member and Roles
 Evan Mills: Discord Bot Interface
+
 Max Farver: Backend and Web UI
 
 ### Approach
