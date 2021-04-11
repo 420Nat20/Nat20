@@ -22,8 +22,14 @@ func (c *BaseController) RegisterSubLocations() {
 
 func (c *BaseController) getAllSubLocations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
+	params := mux.Vars(r)
+	locationId, err := strconv.Atoi(params["locationId"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	items, err := service.GetAllSubLocationModels(c.DB)
+	items, err := service.GetAllSubLocationModels(c.DB, locationId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -43,9 +43,14 @@ func DeleteLocationModel(db *gorm.DB, id int) error {
 }
 
 // SubLocation CRUD
-func GetAllSubLocationModels(db *gorm.DB) ([]data.SubLocationModel, error) {
+func GetAllSubLocationModels(db *gorm.DB, locationId int) ([]data.SubLocationModel, error) {
+	location, err := GetLocationModelByID(db, locationId)
+	if err != nil {
+		return nil, err
+	}
+
 	var items []data.SubLocationModel
-	err := db.Find(&items).Error
+	err = db.Where("location_model_id = ?", location.ID).Find(&items).Error
 	return items, err
 }
 
