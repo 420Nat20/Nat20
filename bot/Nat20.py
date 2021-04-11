@@ -28,6 +28,12 @@ async def on_ready():
 
 
 @client.command()
+async def temp(ctx):
+    nat20 = discord.utils.get(ctx.message.guild.roles, name='Nat20')
+    await nat20.edit(position=2)
+
+
+@client.command()
 async def start_campaign(ctx):
     author = ctx.message.author
 
@@ -39,8 +45,9 @@ async def start_campaign(ctx):
 
     dm = discord.utils.get(ctx.message.guild.roles, name='DM')
     if dm is None:
-        create_role(ctx, 'DM')
-        create_channel(ctx, 'DM')
+        dm = await ctx.message.guild.create_role(name='DM', permissions=discord.Permissions.all())
+        await author.add_roles(dm)
+        await create_channel(ctx, 'DM')
 
     body = {'ServerID': ctx.message.guild.id, 'DM': author.id}
     requests.post(f'{base_endpoint_url}/games/', json=body)
@@ -49,6 +56,11 @@ async def start_campaign(ctx):
 @client.command()
 async def end_campaign(ctx):
     author = ctx.message.author
+    dm = discord.utils.get(ctx.message.guild.roles, name='DM')
+
+    if dm not in author.roles:
+        await ctx.message.channel.send(f'{author.mention}, You are not the DM and cannot end the campaign.')
+        return
 
     response = requests.delete(f'{base_endpoint_url}/games/{ctx.message.guild.id}/')
     print(response.text)
@@ -56,13 +68,15 @@ async def end_campaign(ctx):
         await ctx.message.channel.send(f'<@{author.id}>, there is not a game running.')
         return
 
-    dm = discord.utils.get(ctx.message.guild.roles, name='DM')
-    if dm is not None:
-        await dm.delete()
+    roles = ctx.message.guild.roles
+    for role in roles:
+        if role.name != 'Nat20' and role.name != '@everyone':
+            await role.delete()
 
-    dm_channel = discord.utils.get(ctx.message.guild.text_channels, name='DM')
-    if dm_channel is not None:
-        await dm_channel.delete()
+    channels = ctx.message.guild.text_channels
+    for channel in channels:
+        if channel.name != 'general':
+            await channel.delete()
 
 
 @client.command()
