@@ -16,7 +16,7 @@ func (c *BaseController) RegisterLocations() {
 	c.Router.HandleFunc("/", c.getAllLocations).Methods("GET")
 	c.Router.HandleFunc("/{id}", c.getLocation).Methods("GET")
 	c.Router.HandleFunc("/", c.postLocation).Methods("POST")
-	c.Router.HandleFunc("/{id}", c.updateLocation).Methods("UPDATE")
+	c.Router.HandleFunc("/{id}", c.updateLocation).Methods("PUT")
 	c.Router.HandleFunc("/{id}", c.deleteLocation).Methods("DELETE")
 }
 
@@ -74,7 +74,7 @@ func (c *BaseController) postLocation(w http.ResponseWriter, r *http.Request) {
 func (c *BaseController) updateLocation(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	params := mux.Vars(r)
-	gameId, err := strconv.Atoi(params["gameId"])
+	id, err := strconv.Atoi(params["id"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -87,7 +87,7 @@ func (c *BaseController) updateLocation(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = service.UpdateLocationModel(c.DB, gameId, &newItem)
+	err = service.UpdateLocationModel(c.DB, id, &newItem)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -16,7 +16,7 @@ func (c *BaseController) RegisterUsers() {
 	c.Router.HandleFunc("/", c.getAllUsers).Methods("GET")
 	c.Router.HandleFunc("/{id}", c.getUser).Methods("GET")
 	c.Router.HandleFunc("/", c.postUser).Methods("POST")
-	c.Router.HandleFunc("/{id}", c.updateUser).Methods("UPDATE")
+	c.Router.HandleFunc("/{id}", c.updateUser).Methods("PUT")
 	c.Router.HandleFunc("/{id}", c.deleteUser).Methods("DELETE")
 }
 

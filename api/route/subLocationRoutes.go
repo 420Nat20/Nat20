@@ -16,7 +16,7 @@ func (c *BaseController) RegisterSubLocations() {
 	c.Router.HandleFunc("/", c.getAllSubLocations).Methods("GET")
 	c.Router.HandleFunc("/{id}", c.getSubLocation).Methods("GET")
 	c.Router.HandleFunc("/", c.postSubLocation).Methods("POST")
-	c.Router.HandleFunc("/{id}", c.updateSubLocation).Methods("UPDATE")
+	c.Router.HandleFunc("/{id}", c.updateSubLocation).Methods("PUT")
 	c.Router.HandleFunc("/{id}", c.deleteSubLocation).Methods("DELETE")
 }
 
@@ -74,7 +74,7 @@ func (c *BaseController) postSubLocation(w http.ResponseWriter, r *http.Request)
 func (c *BaseController) updateSubLocation(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	params := mux.Vars(r)
-	gameId, err := strconv.Atoi(params["locationId"])
+	id, err := strconv.Atoi(params["id"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -87,7 +87,7 @@ func (c *BaseController) updateSubLocation(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = service.UpdateSubLocationModel(c.DB, gameId, &newItem)
+	err = service.UpdateSubLocationModel(c.DB, id, &newItem)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
