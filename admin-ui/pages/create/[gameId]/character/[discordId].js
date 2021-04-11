@@ -100,8 +100,6 @@ export default function CharacterCreate() {
       }
     );
 
-    console.log(await response.status);
-
     if ((await response.status) === 200) {
       reset();
       setOpen(true);

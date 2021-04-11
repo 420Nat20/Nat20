@@ -64,8 +64,11 @@ export default function CharacterLocation() {
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
+
+  const [open, setOpen] = React.useState(false);
 
   const router = useRouter();
   const { gameId, discordId } = router.query;
@@ -87,65 +90,76 @@ export default function CharacterLocation() {
       }
     );
 
-    console.log(await response.json());
+    if ((await response.status) === 200) {
+      reset();
+      setOpen(true);
+    }
   };
 
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
-      <div className={classes.paper}>
-        <Typography component="h1" variant="h5">
-          Create a Location
-        </Typography>
-        <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
-          <Controller
-            name="Name"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                id="name"
-                label="Location Name"
-                name="Name"
-                {...field}
-              />
-            )}
-          />
-          <Controller
-            as={TextField}
-            name="EventDescription"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                label="Event Description"
-                id="eventDescription"
-                autofocus
-                {...field}
-              />
-            )}
-          />
+      {!open ? (
+        <div className={classes.paper}>
+          <Typography component="h1" variant="h5">
+            Create a Location
+          </Typography>
+          <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
+            <Controller
+              name="Name"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="name"
+                  label="Location Name"
+                  name="Name"
+                  {...field}
+                />
+              )}
+            />
+            <Controller
+              as={TextField}
+              name="EventDescription"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  label="Event Description"
+                  id="eventDescription"
+                  {...field}
+                />
+              )}
+            />
 
-          {/* Submit */}
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-          >
-            Create
-          </Button>
-        </form>
-      </div>
+            {/* Submit */}
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+            >
+              Create
+            </Button>
+          </form>
+        </div>
+      ) : (
+        <AlertDialog
+          open={open}
+          setOpen={setOpen}
+          title="Location Created"
+          message="A new location has been created for players to visit."
+        />
+      )}
       <Box mt={8}>
         <Copyright />
       </Box>
