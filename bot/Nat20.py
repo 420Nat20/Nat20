@@ -1,13 +1,12 @@
-import asyncio
 import os
 from random import randint
 
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-# import requests
+import requests
 
-PREFIX='!'
+PREFIX = '!'
 
 f = open('commands.md')
 command_message = f.read()
@@ -19,13 +18,78 @@ intents = discord.Intents.default()
 intents.members = True
 client = commands.Bot(command_prefix=PREFIX, intents=intents)
 
-base_endpoint_url = 'https://nat-20-y48jw.ondigitalocean.app/'
+base_endpoint_url = 'https://api.nat20.tech'
 
 
 @client.event
 async def on_ready():
     await client.change_presence(activity=discord.Game(name='!commands to list possible commands'))
     print('Online')
+
+
+@client.command()
+async def start_campaign(ctx):
+    author = ctx.message.author
+
+    response = requests.get(f'{base_endpoint_url}/games/{ctx.message.guild.id}/')
+    print(response.text)
+    if response.text.strip() != 'record not found':
+        await ctx.message.channel.send(f'<@{author.id}>, a game is already running wait until that one is done.')
+        return
+
+    dm = discord.utils.get(ctx.message.guild.roles, name='DM')
+    if dm is None:
+        create_role(ctx, 'DM')
+        create_channel(ctx, 'DM')
+
+    body = {'ServerID': ctx.message.guild.id, 'DM': author.id}
+    requests.post(f'{base_endpoint_url}/games/', json=body)
+
+
+@client.command()
+async def end_campaign(ctx):
+    author = ctx.message.author
+
+    response = requests.delete(f'{base_endpoint_url}/games/{ctx.message.guild.id}/')
+    print(response.text)
+    if response.text.strip() == 'record not found':
+        await ctx.message.channel.send(f'<@{author.id}>, there is not a game running.')
+        return
+
+    dm = discord.utils.get(ctx.message.guild.roles, name='DM')
+    if dm is not None:
+        await dm.delete()
+
+    dm_channel = discord.utils.get(ctx.message.guild.text_channels, name='DM')
+    if dm_channel is not None:
+        await dm_channel.delete()
+
+
+@client.command()
+async def character(ctx):
+    author = ctx.message.author
+    stats = requests.get(f'{base_endpoint_url}/games/{ctx.message.guild.id}/users/{author.id}')
+
+    if stats.text == 'record not found':
+        await ctx.message.channel.send(f'<@{author.id}, You need to register your character. You can do this by using '
+                                       f'`!register`.')
+        return
+
+    wanted = ['Name', 'Class', 'Background', 'Race', 'Alignment', 'Strength', 'Dexterity', 'Constitution',
+              'Intelligence', 'Wisdom', 'Charisma', 'Ideal', 'TraitOne', 'TraitTwo', 'Bond', 'Flaw']
+
+    keys = stats.keys()
+    stat_str = 'Here is you current character sheet:\n'
+    for key in keys:
+        if key in wanted:
+            if key == 'TraitOne':
+                stat_str += f'> Trait One: {stats[key]}\n'
+            elif key == 'TraitTwo':
+                stat_str += f'> Trait Two: {stats[key]}\n'
+            else:
+                stat_str += f'> {key}: {stats[key]}\n'
+
+    await author.send(stat_str)
 
 
 @client.command()
@@ -91,13 +155,47 @@ async def locations(ctx):
     :param ctx: context for the command
     :return: None
     """
+    locations = requests.get(f'{base_endpoint_url}/games/{ctx.message.guild}/locations/')
+    locations = locations.json()
     channel = ctx.message.channel
-    await channel.send('Locations')
+
+    location_string = f'<@{ctx.message.author.id}> Here are the available locations:\n'
+
+    for location in locations:
+        name = location['Name']
+        location_string += f'> {name} \n'
+
+    await channel.send(location_string)
 
 
 @client.command()
 async def sublocations(ctx):
-    await ctx.message.channel.send('sublocations')
+    author = ctx.message.author
+    author_roles = author.roles
+    location = None
+
+    for temp in author_roles:
+        if '_' not in temp.name and temp.name != '@everyone' and temp.name != 'DM':
+            location = temp
+            break
+
+    location_id = None
+    locations = requests.get(f'{base_endpoint_url}/games/{ctx.message.guild.id}/locations/').json()
+    for loc in locations:
+        if loc['Name'] == location.name:
+            location_id = loc['ID']
+            break
+
+    sublocations = requests.get(f'{base_endpoint_url}/games/{ctx.message.guild.id}/locations/{location_id}/sublocations/').json()
+    channel = ctx.message.channel
+
+    location_string = f'<@{ctx.message.author.id}> Here are the available sublocations at {location.name}:\n'
+
+    for location in sublocations:
+        name = location['Name']
+        location_string += f'> {name} \n'
+
+    await channel.send(location_string)
 
 
 @client.command()
@@ -127,6 +225,21 @@ async def travel(ctx):
 
     location = message.replace('!travel ', '')
 
+    locations = requests.get(f'{base_endpoint_url}/games/{ctx.message.guild.id}/locations/').json()
+
+    valid = False
+    location_data = None
+    for loc in locations:
+        if loc['Name'] == location:
+            valid = True
+            location_data = loc
+            break
+
+    if not valid:
+        await ctx.message.channel.send(f'<@{author.id}>, That is not a valid location. Use `!locations` '
+                                       f'to list out possible values.')
+        return
+
     author_roles = author.roles
     for role in author_roles:
         if role.name != '@everyone' and role.name != 'DM':
@@ -137,7 +250,7 @@ async def travel(ctx):
                     if '_' in ctx.message.channel.name:
                         await ctx.message.channel.delete()
                     else:
-                        channel = discord.utils.get(ctx.message.guild.text_channels, name=role.name)
+                        channel = discord.utils.get(ctx.message.guild.text_channels, name=role.name.replace(' ', '-'))
                         if channel is not None:
                             await channel.delete()
 
@@ -158,6 +271,19 @@ async def travel(ctx):
 
         await author.add_roles(location_role)
 
+    print(location_data)
+    if not location_data['Visited'] and location_data['EventDescription']:
+        location_data['Visited'] = True
+        print(location_data)
+        loc_id = location_data['ID']
+        requests.put(f'{base_endpoint_url}/games/{ctx.message.guild.id}/locations/{loc_id}',
+                     json=location_data)
+        await create_role(ctx, f'{location}_encounter')
+        encounter_channel = await create_channel(ctx, f'{location}_encounter')
+        dm = discord.utils.get(ctx.message.guild.roles, name='DM')
+        await encounter_channel.send(f'<@{dm}>, There is an encounter starting.')
+        await encounter_channel.send(location_data['EventDescription'])
+
 
 @client.command()
 async def enter(ctx):
@@ -171,14 +297,33 @@ async def enter(ctx):
 
     sublocation = message.replace('!enter ', '')
 
-    roles = ctx.message.guild.roles
     author_roles = author.roles
     location = None
 
-    for temp in roles:
+    for temp in author_roles:
         if '_' not in temp.name and temp.name != '@everyone' and temp.name != 'DM':
             location = temp
             break
+
+    location_id = None
+    locations = requests.get(f'{base_endpoint_url}/games/{ctx.message.guild.id}/locations/').json()
+    for loc in locations:
+        if loc['Name'] == location.name:
+            location_id = loc['ID']
+            break
+
+    valid = False
+    sublocations = requests.get(f'{base_endpoint_url}/games/{ctx.message.guild.id}/locations/{location_id}/sublocations/').json()
+    sublocation_data = None
+    for sub in sublocations:
+        if sub['Name'] == sublocation:
+            valid = True
+            sublocation_data = sub
+
+    if not valid:
+        await ctx.message.channel.send(f'<@{author.id}>, That is not a valid sublocation. Use `!sublocations` '
+                                       f'to list out possible values.')
+        return
 
     role = discord.utils.get(ctx.message.guild.roles, name=f'{location.name}_{sublocation}')
 
@@ -189,15 +334,59 @@ async def enter(ctx):
                 if '_' == ctx.message.channel.name:
                     await ctx.message.channel.delete()
                 else:
-                    channel = discord.utils.get(ctx.message.guild.text_channels, name=temp.name)
+                    channel = discord.utils.get(ctx.message.guild.text_channels, name=temp.name.replace(' ', '-'))
                     if channel is not None:
                         await channel.delete()
                 await temp.delete()
 
-
     if role is None:
         await create_role(ctx, f'{location.name}_{sublocation}')
         await create_channel(ctx, f'{location.name}_{sublocation}')
+    else:
+        await author.add_roles(role)
+
+    if not sublocation_data['Visited'] and sublocation_data['EventDescription']:
+        sublocation_data['Visited'] = True
+        sub_id = sublocation_data['ID']
+        requests.put(f'{base_endpoint_url}/games/{ctx.message.guild.id}/locations/{location_id}/sublocations/{sub_id}',
+                     json=sublocation_data)
+        await create_role(ctx, f'{location.name}_{sublocation}_encounter')
+        encounter_channel = await create_channel(ctx, f'{location.name}_{sublocation}_encounter')
+        dm = discord.utils.get(ctx.message.guild.roles, name='DM')
+        await encounter_channel.send(f'<{dm.mention}>, There is an encounter starting.')
+        await encounter_channel.send(sublocation_data['EventDescription'])
+
+
+@client.command()
+async def leave(ctx):
+    author = ctx.message.author
+
+    roles = ctx.message.guild.roles
+    author_roles = author.roles
+    location = None
+
+    for temp in roles:
+        if '_' not in temp.name and temp.name != '@everyone' and temp.name != 'DM':
+            location = temp
+            break
+
+    role = discord.utils.get(ctx.message.guild.roles, name=f'{location.name}_general')
+
+    for temp in author_roles:
+        if '_' in temp.name:
+            await author.remove_roles(temp)
+            if len(temp.members) == 0:
+                if '_' == ctx.message.channel.name:
+                    await ctx.message.channel.delete()
+                else:
+                    channel = discord.utils.get(ctx.message.guild.text_channels, name=temp.name.replace(' ', '-'))
+                    if channel is not None:
+                        await channel.delete()
+                await temp.delete()
+
+    if role is None:
+        await create_role(ctx, f'{location.name}_general')
+        await create_channel(ctx, f'{location.name}_general')
     else:
         await author.add_roles(role)
 
@@ -220,7 +409,7 @@ async def create_channel(ctx, channel_name):
         ctx.message.guild.me: discord.PermissionOverwrite(read_messages=True),
         role: discord.PermissionOverwrite(read_messages=True, send_messages=True)
     }
-    await ctx.message.guild.create_text_channel(channel_name, overwrites=overwrites)
+    return await ctx.message.guild.create_text_channel(channel_name, overwrites=overwrites)
 
 
 async def create_role(ctx, role_name):
