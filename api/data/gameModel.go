@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type GameModel struct {
 	gorm.Model
-	ServerID int `gorm:"not null":"unique"`
+	ServerID int `gorm:"not null;unique"`
 
 	DM        int
 	Users     []UserModel

@@ -16,7 +16,7 @@ func (c *BaseController) RegisterGames() {
 	c.Router.HandleFunc("/", c.getAllGames).Methods("GET")
 	c.Router.HandleFunc("/{id}", c.getGame).Methods("GET")
 	c.Router.HandleFunc("/", c.postGame).Methods("POST")
-	c.Router.HandleFunc("/{id}", c.updateGame).Methods("UPDATE")
+	c.Router.HandleFunc("/{id}", c.updateGame).Methods("PUT")
 	c.Router.HandleFunc("/{id}", c.deleteGame).Methods("DELETE")
 }
 

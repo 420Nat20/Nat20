@@ -28,12 +28,12 @@ func CreateLocationModel(db *gorm.DB, gameId int, item *data.LocationModel) erro
 	return err
 }
 
-func UpdateLocationModel(db *gorm.DB, gameId int, item *data.LocationModel) error {
-	game, err := GetGameModelByServerID(db, gameId)
+func UpdateLocationModel(db *gorm.DB, id int, item *data.LocationModel) error {
+	location, err := GetLocationModelByID(db, id)
 	if err != nil {
 		return err
 	}
-	err = db.Model(&game).Association("Locations").Replace(item)
+	err = db.Model(&location).Updates(item).Error
 	return err
 }
 
@@ -43,9 +43,14 @@ func DeleteLocationModel(db *gorm.DB, id int) error {
 }
 
 // SubLocation CRUD
-func GetAllSubLocationModels(db *gorm.DB) ([]data.SubLocationModel, error) {
+func GetAllSubLocationModels(db *gorm.DB, locationId int) ([]data.SubLocationModel, error) {
+	location, err := GetLocationModelByID(db, locationId)
+	if err != nil {
+		return nil, err
+	}
+
 	var items []data.SubLocationModel
-	err := db.Find(&items).Error
+	err = db.Where("location_model_id = ?", location.ID).Find(&items).Error
 	return items, err
 }
 
@@ -64,12 +69,12 @@ func CreateSubLocationModel(db *gorm.DB, locationId int, item *data.SubLocationM
 	return err
 }
 
-func UpdateSubLocationModel(db *gorm.DB, locationId int, item *data.SubLocationModel) error {
-	location, err := GetLocationModelByID(db, locationId)
+func UpdateSubLocationModel(db *gorm.DB, subLocationId int, item *data.SubLocationModel) error {
+	subLocation, err := GetSubLocationModelByID(db, subLocationId)
 	if err != nil {
 		return err
 	}
-	err = db.Model(&location).Association("SubLocations").Replace(item)
+	err = db.Model(&subLocation).Updates(item).Error
 	return err
 }
 

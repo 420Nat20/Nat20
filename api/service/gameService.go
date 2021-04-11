@@ -29,6 +29,6 @@ func UpdateGameModel(db *gorm.DB, item *data.GameModel) error {
 }
 
 func DeleteGameModel(db *gorm.DB, id int) error {
-	err := db.Delete(&data.GameModel{}, id).Error
+	err := db.Where("server_id = ?", id).Delete(&data.GameModel{}).Error
 	return err
 }

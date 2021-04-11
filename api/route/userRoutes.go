@@ -16,7 +16,7 @@ func (c *BaseController) RegisterUsers() {
 	c.Router.HandleFunc("/", c.getAllUsers).Methods("GET")
 	c.Router.HandleFunc("/{id}", c.getUser).Methods("GET")
 	c.Router.HandleFunc("/", c.postUser).Methods("POST")
-	c.Router.HandleFunc("/{id}", c.updateUser).Methods("UPDATE")
+	c.Router.HandleFunc("/{id}", c.updateUser).Methods("PUT")
 	c.Router.HandleFunc("/{id}", c.deleteUser).Methods("DELETE")
 }
 
@@ -42,7 +42,7 @@ func (c *BaseController) getUser(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 
-	item, err := service.GetUserModelByID(c.DB, id)
+	item, err := service.GetUserModelByDiscordID(c.DB, id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
