@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -24,8 +25,12 @@ func main() {
 		log.Printf("defaulting to port %s", port)
 	}
 
+	withMiddleware := cors.
+		Default().
+		Handler(server.Router)
+
 	log.Printf("Listening on port %s", port)
-	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, server.Router))
+	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, withMiddleware))
 }
 
 func attachControllers(c *route.BaseController) {
