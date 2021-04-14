@@ -9,15 +9,18 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	"gorm.io/gorm"
 )
 
-func main() {
-	server := &route.BaseController{
-		DB:     data.NewDB(),
-		Router: mux.NewRouter().StrictSlash(true),
-	}
+type controller interface {
+	Register()
+}
 
-	attachControllers(server)
+func main() {
+	router := mux.NewRouter()
+	db := data.NewDB()
+
+	registerControllers(router, db)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -27,35 +30,45 @@ func main() {
 
 	withMiddleware := cors.
 		Default().
-		Handler(server.Router)
+		Handler(router)
 
 	log.Printf("Listening on port %s", port)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, withMiddleware))
 }
 
-func attachControllers(c *route.BaseController) {
+func registerControllers(r *mux.Router, db *gorm.DB) {
+	var routers []controller
+
 	// Add subrouters
-	gamesController := &route.BaseController{
-		DB:     c.DB,
-		Router: c.Router.NewRoute().PathPrefix("/games").Subrouter(),
-	}
-	gamesController.RegisterGames()
+	routers = append(routers,
+		&route.GameController{
+			DB:     db,
+			Router: r.NewRoute().PathPrefix("/games").Subrouter(),
+		},
+	)
 
-	userController := &route.BaseController{
-		DB:     c.DB,
-		Router: c.Router.NewRoute().PathPrefix("/games/{gameId}/users").Subrouter(),
-	}
-	userController.RegisterUsers()
+	routers = append(routers,
+		&route.UserController{
+			DB:     db,
+			Router: r.NewRoute().PathPrefix("/games/{gameId}/users").Subrouter(),
+		},
+	)
 
-	locationsController := &route.BaseController{
-		DB:     c.DB,
-		Router: c.Router.NewRoute().PathPrefix("/games/{gameId}/locations").Subrouter(),
-	}
-	locationsController.RegisterLocations()
+	routers = append(routers,
+		&route.LocationController{
+			DB:     db,
+			Router: r.NewRoute().PathPrefix("/games/{gameId}/locations").Subrouter(),
+		},
+	)
 
-	subLocationsController := &route.BaseController{
-		DB:     c.DB,
-		Router: c.Router.NewRoute().PathPrefix("/games/{gameId}/locations/{locationId}/sublocations").Subrouter(),
+	routers = append(routers,
+		&route.SubLocationController{
+			DB:     db,
+			Router: r.NewRoute().PathPrefix("/games/{gameId}/locations/{locationId}/sublocations").Subrouter(),
+		},
+	)
+
+	for _, router := range routers {
+		router.Register()
 	}
-	subLocationsController.RegisterSubLocations()
 }

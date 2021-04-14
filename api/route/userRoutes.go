@@ -9,10 +9,16 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
 
+type UserController struct {
+	DB     *gorm.DB
+	Router *mux.Router
+}
+
 // ItemRoutes attaches routes for the item package to a router.
-func (c *BaseController) RegisterUsers() {
+func (c *UserController) Register() {
 	c.Router.HandleFunc("/", c.getAllUsers).Methods("GET")
 	c.Router.HandleFunc("/{id}", c.getUser).Methods("GET")
 	c.Router.HandleFunc("/", c.postUser).Methods("POST")
@@ -20,7 +26,7 @@ func (c *BaseController) RegisterUsers() {
 	c.Router.HandleFunc("/{id}", c.deleteUser).Methods("DELETE")
 }
 
-func (c *BaseController) getAllUsers(w http.ResponseWriter, r *http.Request) {
+func (c *UserController) getAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
 	items, err := service.GetAllUserModels(c.DB)
@@ -32,7 +38,7 @@ func (c *BaseController) getAllUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(items)
 }
 
-func (c *BaseController) getUser(w http.ResponseWriter, r *http.Request) {
+func (c *UserController) getUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, err := strconv.Atoi(params["id"])
 	if err != nil {
@@ -51,7 +57,7 @@ func (c *BaseController) getUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-func (c *BaseController) postUser(w http.ResponseWriter, r *http.Request) {
+func (c *UserController) postUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	params := mux.Vars(r)
 	gameId, err := strconv.Atoi(params["gameId"])
@@ -76,32 +82,44 @@ func (c *BaseController) postUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newItem)
 }
 
-func (c *BaseController) updateUser(w http.ResponseWriter, r *http.Request) {
+func (c *UserController) updateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
+
 	params := mux.Vars(r)
 	gameId, err := strconv.Atoi(params["gameId"])
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	var newItem data.UserModel
-	err = json.NewDecoder(r.Body).Decode(&newItem)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = service.UpdateUserModel(c.DB, gameId, &newItem)
+	userDiscordId, err := strconv.Atoi(params["id"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(newItem)
+	existingUser, err := service.GetUserModelByDiscordID(c.DB, userDiscordId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = json.NewDecoder(r.Body).Decode(&existingUser)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = service.UpdateUserModel(c.DB, gameId, &existingUser)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(existingUser)
 }
 
-func (c *BaseController) deleteUser(w http.ResponseWriter, r *http.Request) {
+func (c *UserController) deleteUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, err := strconv.Atoi(params["id"])
 	w.Header().Add("Content-Type", "application/json")

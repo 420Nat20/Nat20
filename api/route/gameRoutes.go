@@ -9,10 +9,16 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
 
+type GameController struct {
+	DB     *gorm.DB
+	Router *mux.Router
+}
+
 // ItemRoutes attaches routes for the item package to a router.
-func (c *BaseController) RegisterGames() {
+func (c *GameController) Register() {
 	c.Router.HandleFunc("/", c.getAllGames).Methods("GET")
 	c.Router.HandleFunc("/{id}", c.getGame).Methods("GET")
 	c.Router.HandleFunc("/", c.postGame).Methods("POST")
@@ -20,7 +26,7 @@ func (c *BaseController) RegisterGames() {
 	c.Router.HandleFunc("/{id}", c.deleteGame).Methods("DELETE")
 }
 
-func (c *BaseController) getAllGames(w http.ResponseWriter, r *http.Request) {
+func (c *GameController) getAllGames(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
 	items, err := service.GetAllGameModels(c.DB)
@@ -32,7 +38,7 @@ func (c *BaseController) getAllGames(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(items)
 }
 
-func (c *BaseController) getGame(w http.ResponseWriter, r *http.Request) {
+func (c *GameController) getGame(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, err := strconv.Atoi(params["id"])
 	w.Header().Add("Content-Type", "application/json")
@@ -46,7 +52,7 @@ func (c *BaseController) getGame(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-func (c *BaseController) postGame(w http.ResponseWriter, r *http.Request) {
+func (c *GameController) postGame(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
 	var newItem data.GameModel
@@ -65,26 +71,37 @@ func (c *BaseController) postGame(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newItem)
 }
 
-func (c *BaseController) updateGame(w http.ResponseWriter, r *http.Request) {
+func (c *GameController) updateGame(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
-
-	var newItem data.GameModel
-	err := json.NewDecoder(r.Body).Decode(&newItem)
+	params := mux.Vars(r)
+	id, err := strconv.Atoi(params["id"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = service.UpdateGameModel(c.DB, &newItem)
+	existingGame, err := service.GetGameModelByServerID(c.DB, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = json.NewDecoder(r.Body).Decode(&existingGame)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = service.UpdateGameModel(c.DB, &existingGame)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(newItem)
+	json.NewEncoder(w).Encode(existingGame)
 }
 
-func (c *BaseController) deleteGame(w http.ResponseWriter, r *http.Request) {
+func (c *GameController) deleteGame(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, err := strconv.Atoi(params["id"])
 	w.Header().Add("Content-Type", "application/json")
