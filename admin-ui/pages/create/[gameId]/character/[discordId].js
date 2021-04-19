@@ -15,7 +15,7 @@ import Container from "@material-ui/core/Container";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import AlertDialog from "../../../../components/dialog";
+import AlertDialog from "../../../../components/common/dialog";
 
 const schema = yup.object().shape({
   PlayerName: yup.string().required(),

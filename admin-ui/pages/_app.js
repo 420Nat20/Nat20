@@ -1,34 +1,23 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Head from "next/head";
-import { ThemeProvider } from "@material-ui/core/styles";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import theme from "../styles/theme";
-
+import "../styles/tailwind.css";
+import { Auth0Provider } from "@auth0/auth0-react";
 function MyApp({ Component, pageProps }) {
-  React.useEffect(() => {
-    // Remove the server-side injected CSS.
-    const jssStyles = document.querySelector("#jss-server-side");
-    if (jssStyles) {
-      jssStyles.parentElement.removeChild(jssStyles);
-    }
-  }, []);
-
   return (
-    <React.Fragment>
+    <Auth0Provider
+      domain="mfarver.us.auth0.com"
+      clientId="OtnUwjaPrcHYXsqMP9599k8ZskfQz0Bw"
+      redirectUri="http://localhost:3000/"
+    >
       <Head>
-        <title>My page</title>
+        <title>Nat20</title>
         <meta
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"
         />
       </Head>
-      <ThemeProvider theme={theme}>
-        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-        <CssBaseline />
-        <Component {...pageProps} />
-      </ThemeProvider>
-    </React.Fragment>
+      <Component {...pageProps} />
+    </Auth0Provider>
   );
 }
 
