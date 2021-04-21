@@ -13,8 +13,8 @@ const QuickStats = ({ stats, user }) => {
               <div className="flex-shrink-0">
                 <img
                   className="mx-auto h-20 w-20 rounded-full"
-                  src={user.picture}
-                  alt=""
+                  src={user.image}
+                  alt="User Profile Image"
                 />
               </div>
               <div className="mt-4 text-center sm:mt-0 sm:pt-1 sm:text-left">

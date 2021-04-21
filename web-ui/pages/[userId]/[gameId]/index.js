@@ -1,4 +1,4 @@
-import Layout from "../../components/common/layout/layout";
+import Layout from "../../../components/common/layout/layout";
 import {
   AcademicCapIcon,
   BadgeCheckIcon,
@@ -7,9 +7,9 @@ import {
   ReceiptRefundIcon,
   UsersIcon,
 } from "@heroicons/react/outline";
-import QuickStats from "../../components/player/home/quickStats";
-import RecentActivity from "../../components/player/home/recentActivity";
-import { useAuth0 } from "@auth0/auth0-react";
+import QuickStats from "../../../components/player/home/quickStats";
+import RecentActivity from "../../../components/player/home/recentActivity";
+import { signIn, signOut, useSession } from "next-auth/client";
 
 // const user = {
 //   name: "Rallech",
@@ -125,12 +125,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 export default function PlayerHome() {
-  const {
-    user,
-    isAuthenticated,
-    isLoading,
-    getAccessTokenSilently,
-  } = useAuth0();
+  const [session, loading] = useSession();
 
   return (
     <Layout isAdmin={false}>
@@ -140,7 +135,7 @@ export default function PlayerHome() {
         <div className="grid grid-cols-1 gap-4 items-start lg:grid-cols-3 lg:gap-8">
           {/* Left column */}
           <div className="grid grid-cols-1 gap-4 lg:col-span-2">
-            {isAuthenticated && <QuickStats stats={stats} user={user} />}
+            {session && <QuickStats stats={stats} user={session.user} />}
             {/* Actions panel */}
             <section aria-labelledby="quick-links-title">
               <div className="rounded-lg bg-gray-200 overflow-hidden shadow divide-y divide-gray-200 sm:divide-y-0 sm:grid sm:grid-cols-2 sm:gap-px">

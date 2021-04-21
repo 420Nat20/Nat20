@@ -175,7 +175,7 @@ Thumbs.db
 do-config.yaml
 api/tmp/*
 **/.env
-api/tmp/main
+**/api/tmp/*
 
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
@@ -212,3 +212,5 @@ api/tmp/main
 
 # vercel
 **/.vercel
+do-config.yaml
+.gitignore
