@@ -1,4 +1,4 @@
-import Layout from "../../../components/common/layout/layout";
+import Layout from "components/common/layout/layout";
 import {
   AcademicCapIcon,
   BadgeCheckIcon,
@@ -7,8 +7,8 @@ import {
   ReceiptRefundIcon,
   UsersIcon,
 } from "@heroicons/react/outline";
-import QuickStats from "../../../components/player/home/quickStats";
-import RecentActivity from "../../../components/player/home/recentActivity";
+import QuickStats from "components/player/home/quickStats";
+import RecentActivity from "components/player/home/recentActivity";
 import { signIn, signOut, useSession } from "next-auth/client";
 
 // const user = {
