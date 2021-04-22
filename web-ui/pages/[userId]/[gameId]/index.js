@@ -9,15 +9,8 @@ import {
 } from "@heroicons/react/outline";
 import QuickStats from "components/player/home/quickStats";
 import RecentActivity from "components/player/home/recentActivity";
-import { signIn, signOut, useSession } from "next-auth/client";
+import { useSession } from "next-auth/client";
 
-// const user = {
-//   name: "Rallech",
-//   email: "chelseahagon@example.com",
-//   description: "Gnome - Rogue",
-//   imageUrl:
-//     "https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-// };
 const stats = [
   { label: "HP", value: "12" },
   { label: "Level", value: 4 },

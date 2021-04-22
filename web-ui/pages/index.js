@@ -11,7 +11,8 @@ import {
   XIcon,
 } from "@heroicons/react/outline";
 import { ChevronRightIcon, ExternalLinkIcon } from "@heroicons/react/solid";
-import { useAuth0 } from "@auth0/auth0-react";
+import Link from "next/link";
+import { signIn, signOut, useSession, getProviders } from "next-auth/client";
 
 const features = [
   {
@@ -48,65 +49,6 @@ const features = [
     name: "Actually Finish a Game",
     description: "Really, we know. It's a problem.",
     icon: ServerIcon,
-  },
-];
-const blogPosts = [
-  {
-    id: 1,
-    title: "Boost your conversion rate",
-    href: "#",
-    date: "Mar 16, 2020",
-    datetime: "2020-03-16",
-    category: { name: "Article", href: "#" },
-    imageUrl:
-      "https://images.unsplash.com/photo-1496128858413-b36217c2ce36?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1679&q=80",
-    preview:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto accusantium praesentium eius, ut atque fuga culpa, similique sequi cum eos quis dolorum.",
-    author: {
-      name: "Roel Aufderehar",
-      imageUrl:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-      href: "#",
-    },
-    readingLength: "6 min",
-  },
-  {
-    id: 2,
-    title: "How to use search engine optimization to drive sales",
-    href: "#",
-    date: "Mar 10, 2020",
-    datetime: "2020-03-10",
-    category: { name: "Video", href: "#" },
-    imageUrl:
-      "https://images.unsplash.com/photo-1547586696-ea22b4d4235d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1679&q=80",
-    preview:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit facilis asperiores porro quaerat doloribus, eveniet dolore. Adipisci tempora aut inventore optio animi., tempore temporibus quo laudantium.",
-    author: {
-      name: "Brenna Goyette",
-      imageUrl:
-        "https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-      href: "#",
-    },
-    readingLength: "4 min",
-  },
-  {
-    id: 3,
-    title: "Improve your customer experience",
-    href: "#",
-    date: "Feb 12, 2020",
-    datetime: "2020-02-12",
-    category: { name: "Case Study", href: "#" },
-    imageUrl:
-      "https://images.unsplash.com/photo-1492724441997-5dc865305da7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1679&q=80",
-    preview:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Sint harum rerum voluptatem quo recusandae magni placeat saepe molestiae, sed excepturi cumque corporis perferendis hic.",
-    author: {
-      name: "Daniela Metz",
-      imageUrl:
-        "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-      href: "#",
-    },
-    readingLength: "11 min",
   },
 ];
 const footerNavigation = {
@@ -200,7 +142,7 @@ const footerNavigation = {
 };
 
 export default function Example() {
-  const { loginWithRedirect } = useAuth0();
+  const [session, loading] = useSession();
 
   return (
     <div className="bg-white">
@@ -233,18 +175,27 @@ export default function Example() {
                     </div>
                   </div>
                   <div className="hidden md:flex md:items-center md:space-x-6">
-                    <button
-                      className="text-base font-medium text-white hover:text-gray-300"
-                      onClick={() => loginWithRedirect()}
-                    >
-                      Log In
-                    </button>
-                    <a
-                      href="#"
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700"
-                    >
-                      Sign Up
-                    </a>
+                    {session && (
+                      <Link href="/123/123">
+                        <a className="block w-full py-2 px-4 rounded-md shadow bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-medium hover:from-teal-600 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-400 focus:ring-offset-gray-900">
+                          Home
+                        </a>
+                      </Link>
+                    )}
+                    {!session && (
+                      <button
+                        className="block w-full py-2 px-4 rounded-md shadow bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-medium hover:from-teal-600 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-400 focus:ring-offset-gray-900"
+                        onClick={() =>
+                          signIn("discord", {
+                            callbackUrl: process.env.NEXTAUTH_URL
+                              ? process.env.NEXTAUTH_URL + "/123/123"
+                              : "http://localhost:3000/123/123",
+                          })
+                        }
+                      >
+                        Log In
+                      </button>
+                    )}
                   </div>
                 </nav>
               </div>
@@ -281,22 +232,27 @@ export default function Example() {
                       </div>
                     </div>
                     <div className="pt-5 pb-6">
-                      <div className="mt-6 px-5">
-                        <a
-                          href="#"
+                      {!session && (
+                        <button
                           className="block text-center w-full py-3 px-4 rounded-md shadow bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-medium hover:from-teal-600 hover:to-cyan-700"
+                          onClick={() =>
+                            signIn("discord", {
+                              callbackUrl: process.env.NEXTAUTH_URL
+                                ? process.env.NEXTAUTH_URL + "/123/123"
+                                : "http://localhost:3000/123/123",
+                            })
+                          }
                         >
-                          Sign Up
-                        </a>
-                      </div>
-                      <div className="mt-6 px-5">
-                        <p className="text-center text-base font-medium text-gray-500">
-                          Existing customer?{" "}
-                          <a href="#" className="text-gray-900 hover:underline">
-                            Login
+                          Login with Discord
+                        </button>
+                      )}
+                      {session && (
+                        <Link href="/123/123">
+                          <a className="block text-center w-full py-3 px-4 rounded-md shadow bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-medium hover:from-teal-600 hover:to-cyan-700">
+                            Home
                           </a>
-                        </p>
-                      </div>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </Popover.Panel>
@@ -433,7 +389,7 @@ export default function Example() {
           </div>
 
           {/* CTA Section */}
-          <div className="relative bg-gray-900">
+          {/* <div className="relative bg-gray-900">
             <div className="relative h-56 bg-indigo-600 sm:h-72 md:absolute md:left-0 md:h-full md:w-1/2">
               <img
                 className="w-full h-full object-cover"
@@ -475,8 +431,8 @@ export default function Example() {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </div> 
+          </div>*/}
         </main>
         <footer className="bg-gray-50" aria-labelledby="footerHeading">
           <h2 id="footerHeading" className="sr-only">

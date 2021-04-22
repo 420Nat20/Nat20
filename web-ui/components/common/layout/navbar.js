@@ -138,7 +138,13 @@ const Navbar = ({ isAdmin }) => {
                                     active ? "bg-gray-100" : "",
                                     "block w-full px-4 py-2 text-sm text-gray-700"
                                   )}
-                                  onClick={() => signOut()}
+                                  onClick={() =>
+                                    signOut({
+                                      callbackUrl: process.env.NEXTAUTH_URL
+                                        ? process.env.NEXTAUTH_URL + "/"
+                                        : "http://localhost:3000/",
+                                    })
+                                  }
                                 >
                                   Logout
                                 </button>
@@ -303,7 +309,13 @@ const Navbar = ({ isAdmin }) => {
                           <div className="mt-3 px-2 space-y-1">
                             <button
                               className="block rounded-md px-3 py-2 text-base text-gray-900 font-medium hover:bg-gray-100 hover:text-gray-800"
-                              onClick={() => signOut()}
+                              onClick={() =>
+                                signOut({
+                                  callbackUrl: process.env.NEXTAUTH_URL
+                                    ? process.env.NEXTAUTH_URL + "/"
+                                    : "http://localhost:3000/",
+                                })
+                              }
                             >
                               Sign Out
                             </button>
@@ -332,7 +344,13 @@ const Navbar = ({ isAdmin }) => {
                           <div className="mt-8 px-5">
                             <button
                               className="block text-center w-full py-3 px-4 rounded-md shadow bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-medium hover:from-teal-600 hover:to-cyan-700"
-                              onClick={() => signIn("discord")}
+                              onClick={() =>
+                                signIn("discord", {
+                                  callbackUrl: process.env.NEXTAUTH_URL
+                                    ? process.env.NEXTAUTH_URL + "/123/123"
+                                    : "http://localhost:3000/123/123",
+                                })
+                              }
                             >
                               Login with Discord
                             </button>
