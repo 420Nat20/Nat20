@@ -2,10 +2,11 @@ package main
 
 import (
 	"log"
-	"nat-20/data"
-	"nat-20/route"
 	"net/http"
 	"os"
+
+	"github.com/420Nat20/Nat20/nat-20/data"
+	"github.com/420Nat20/Nat20/nat-20/route"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"

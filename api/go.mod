@@ -1,4 +1,4 @@
-module nat-20
+module github.com/420Nat20/Nat20/nat-20
 
 go 1.16
 

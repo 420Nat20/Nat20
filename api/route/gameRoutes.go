@@ -3,10 +3,11 @@ package route
 import (
 	"encoding/json"
 	"fmt"
-	"nat-20/data"
-	"nat-20/service"
 	"net/http"
 	"strconv"
+
+	"github.com/420Nat20/Nat20/nat-20/data"
+	"github.com/420Nat20/Nat20/nat-20/service"
 
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"

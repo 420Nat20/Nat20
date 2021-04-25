@@ -2,9 +2,10 @@ package service_test
 
 import (
 	"database/sql"
-	"nat-20/data"
-	"nat-20/service"
 	"regexp"
+
+	"github.com/420Nat20/Nat20/nat-20/data"
+	"github.com/420Nat20/Nat20/nat-20/service"
 
 	"testing"
 

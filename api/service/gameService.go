@@ -1,7 +1,7 @@
 package service
 
 import (
-	"nat-20/data"
+	"github.com/420Nat20/Nat20/nat-20/data"
 
 	"gorm.io/gorm"
 )
