@@ -214,3 +214,7 @@ api/tmp/*
 **/.vercel
 do-config.yaml
 .gitignore
+
+**/.idea/
+**/.idea/*
+.idea/Nat20.iml
