@@ -20,7 +20,7 @@ jobs:
         go-version: 1.16
 
     - name: Build
-      run: cd api && go build -v ./api
+      run: go build -v ./...
 
     - name: Test
-      run: cd api &&go test -v ./api
+      run: go test -v ./...
