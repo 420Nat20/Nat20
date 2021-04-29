@@ -2,9 +2,9 @@ package service_test
 
 import (
 	"database/sql"
+	"github.com/420Nat20/Nat20/nat-20/data/model"
 	"regexp"
 
-	"github.com/420Nat20/Nat20/nat-20/data"
 	"github.com/420Nat20/Nat20/nat-20/service"
 
 	"testing"
@@ -20,7 +20,7 @@ type Suite struct {
 	suite.Suite
 	DB        *gorm.DB
 	mock      sqlmock.Sqlmock
-	gameModel *data.GameModel
+	gameModel *model.GameModel
 }
 
 func (s *Suite) SetupSuite() {

@@ -1,6 +1,8 @@
-package data
+package model
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type GameModel struct {
 	gorm.Model

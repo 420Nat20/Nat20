@@ -3,10 +3,10 @@ package route
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/420Nat20/Nat20/nat-20/data/model"
 	"net/http"
 	"strconv"
 
-	"github.com/420Nat20/Nat20/nat-20/data"
 	"github.com/420Nat20/Nat20/nat-20/service"
 
 	"github.com/gorilla/mux"
@@ -68,7 +68,7 @@ func (c *SubLocationController) postSubLocation(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	var newItem data.SubLocationModel
+	var newItem model.SubLocationModel
 	err = json.NewDecoder(r.Body).Decode(&newItem)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
