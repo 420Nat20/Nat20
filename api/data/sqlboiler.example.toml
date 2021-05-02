@@ -1,0 +1,12 @@
+output = "models"
+wipe = true
+no-tests = true
+
+[psql]
+dbname = ""
+host = ""
+port = 
+user = ""
+pass = ""
+schema = ""
+blacklist = ["migrations"]
