@@ -3,10 +3,10 @@ wipe = true
 no-tests = true
 
 [psql]
-dbname = "defaultdb"
-host = "nat-20-dev-db-do-user-3714440-0.b.db.ondigitalocean.com"
-port = 25060
-user = "doadmin"
-pass = "y8qc4bzgjf26nngb"
-schema = "public"
+dbname = ""
+host = ""
+port = 
+user = ""
+pass = ""
+schema = ""
 blacklist = ["migrations"]
