@@ -217,3 +217,5 @@ api/tmp/*
 **/**/.idea/
 **/**/.idea/*
 .idea/Nat20.iml
+
+**/sqlboiler.toml
