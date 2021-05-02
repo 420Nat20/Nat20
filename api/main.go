@@ -1,75 +1,48 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	"fmt"
+	"github.com/420Nat20/Nat20/nat-20/server"
+	"github.com/420Nat20/Nat20/nat-20/service"
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"log"
-	"net/http"
 	"os"
-
-	"github.com/420Nat20/Nat20/nat-20/data"
-	"github.com/420Nat20/Nat20/nat-20/route"
-
-	"github.com/gorilla/mux"
-	"github.com/rs/cors"
-	"gorm.io/gorm"
 )
 
-type controller interface {
-	Register()
-}
-
 func main() {
-	router := mux.NewRouter()
-	db := data.NewDB()
-
-	registerControllers(router, db)
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8000"
-		log.Printf("defaulting to port %s", port)
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
 	}
 
-	withMiddleware := cors.
-		Default().
-		Handler(router)
-
-	log.Printf("Listening on port %s", port)
-	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, withMiddleware))
-}
-
-func registerControllers(r *mux.Router, db *gorm.DB) {
-	var routers []controller
-
-	// Add subrouters
-	routers = append(routers,
-		&route.GameController{
-			DB:     db,
-			Router: r.NewRoute().PathPrefix("/games").Subrouter(),
-		},
-	)
-
-	routers = append(routers,
-		&route.UserController{
-			DB:     db,
-			Router: r.NewRoute().PathPrefix("/games/{gameId}/users").Subrouter(),
-		},
-	)
-
-	routers = append(routers,
-		&route.LocationController{
-			DB:     db,
-			Router: r.NewRoute().PathPrefix("/games/{gameId}/locations").Subrouter(),
-		},
-	)
-
-	routers = append(routers,
-		&route.SubLocationController{
-			DB:     db,
-			Router: r.NewRoute().PathPrefix("/games/{gameId}/locations/{locationId}/sublocations").Subrouter(),
-		},
-	)
-
-	for _, router := range routers {
-		router.Register()
+	ctx, _ := context.WithCancel(context.Background())
+	api := &server.Server{
+		Ctx: ctx,
 	}
+
+	db, err := sql.Open(
+		"postgres",
+		fmt.Sprintf(
+			"host=%s dbname=%s user=%s password=%s port=%s",
+			os.Getenv("PSQL_HOST"),
+			os.Getenv("PSQL_DBNAME"),
+			os.Getenv("PSQL_USER"),
+			os.Getenv("PSQL_PASS"),
+			os.Getenv("PSQL_PORT")))
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("DB created")
+
+	api.DB = db
+
+	api.UserService = service.UserService{
+		Ctx: ctx,
+		DB:  db,
+	}
+
+	api.InitServer()
 }
