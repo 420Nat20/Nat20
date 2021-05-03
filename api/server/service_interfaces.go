@@ -1,6 +1,8 @@
 package server
 
-import "github.com/420Nat20/Nat20/nat-20/data/models"
+import (
+	"github.com/420Nat20/Nat20/nat-20/data/models"
+)
 
 type CampaignService interface {
 	GetCampaign(id int) (models.Campaign, error)

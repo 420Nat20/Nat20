@@ -8,6 +8,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.10.1 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rs/cors v1.7.0
 	github.com/rubenv/sql-migrate v0.0.0-20210408115534-a32ed26c37ea // indirect
 	github.com/stretchr/testify v1.7.0
