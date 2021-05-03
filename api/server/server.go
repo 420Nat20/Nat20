@@ -23,7 +23,7 @@ type Server struct {
 }
 
 func (s *Server) InitServer() {
-	s.Router = mux.NewRouter()
+	s.Router = mux.NewRouter().StrictSlash(true)
 	s.registerControllers()
 
 	port := os.Getenv("PORT")

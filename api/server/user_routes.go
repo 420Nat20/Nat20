@@ -45,8 +45,8 @@ func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, clientErr := s.UserService.GetUser(userId)
-	if clientErr != nil {
+	user, err := s.UserService.GetUser(userId)
+	if err != nil {
 		httpError := common.GetHttpError(err)
 		http.Error(w, httpError.Message, httpError.StatusCode)
 		return
@@ -70,8 +70,8 @@ func (s *Server) postUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clientErr := s.UserService.CreateUser(&user)
-	if clientErr != nil {
+	err = s.UserService.CreateUser(&user)
+	if err != nil {
 		httpError := common.GetHttpError(err)
 		http.Error(w, httpError.Message, httpError.StatusCode)
 		return
@@ -103,8 +103,8 @@ func (s *Server) updateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, clientErr := s.UserService.UpdateUser(userId, body)
-	if clientErr != nil {
+	user, err := s.UserService.UpdateUser(userId, body)
+	if err != nil {
 		httpError := common.GetHttpError(err)
 		http.Error(w, httpError.Message, httpError.StatusCode)
 		return
@@ -128,8 +128,8 @@ func (s *Server) deleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clientErr := s.UserService.DeleteUser(userId)
-	if clientErr != nil {
+	err = s.UserService.DeleteUser(userId)
+	if err != nil {
 		httpError := common.GetHttpError(err)
 		http.Error(w, httpError.Message, httpError.StatusCode)
 		return
