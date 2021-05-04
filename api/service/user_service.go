@@ -25,7 +25,7 @@ func (u UserService) GetUser(id int) (*models.User, error) {
 func (u UserService) GetAllUsers() (models.UserSlice, error) {
 	all, err := models.Users().All(u.Ctx, u.DB)
 	if err != nil {
-		return models.UserSlice{}, common.NotFound.New("User not found")
+		return models.UserSlice{}, common.BadRequest.New("Failed to get all users")
 	}
 	return all, nil
 }

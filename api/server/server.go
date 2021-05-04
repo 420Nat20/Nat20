@@ -41,8 +41,8 @@ func (s *Server) InitServer() {
 }
 
 func (s *Server) registerControllers() {
-	s.RegisterCampaignRoutes("campaigns")
+	s.RegisterCampaignRoutes("/campaigns")
 	s.RegisterUserRoutes("/users")
-	s.RegisterLocationRoutes("locations")
-	s.RegisterSubLocationRoutes("locations/{locationId:[0-9]+}/sublocations")
+	s.RegisterLocationRoutes("/locations")
+	s.RegisterSubLocationRoutes("/locations/{locationId:[0-9]+}/sublocations")
 }

@@ -15,7 +15,7 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Error loading .env file")
+		log.Println("Failed to load .env file")
 	}
 
 	ctx, _ := context.WithCancel(context.Background())
@@ -40,6 +40,16 @@ func main() {
 	api.DB = db
 
 	api.UserService = service.UserService{
+		Ctx: ctx,
+		DB:  db,
+	}
+
+	api.CampaignService = service.CampaignService{
+		Ctx: ctx,
+		DB:  db,
+	}
+
+	api.LocationService = service.LocationService{
 		Ctx: ctx,
 		DB:  db,
 	}

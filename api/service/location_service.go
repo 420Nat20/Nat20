@@ -7,11 +7,11 @@ import (
 )
 
 type LocationService struct {
-	ctx context.Context
-	db  *sql.DB
+	Ctx context.Context
+	DB  *sql.DB
 }
 
-func (l LocationService) GetLocation(gameId int, id int) (models.Location, error) {
+func (l LocationService) GetLocation(id int) (*models.Location, error) {
 	panic("implement me")
 }
 
@@ -19,11 +19,11 @@ func (l LocationService) GetAllLocations(gameId int) (models.LocationSlice, erro
 	panic("implement me")
 }
 
-func (l LocationService) CreateLocation(gameId int, location models.Location) (models.Location, error) {
+func (l LocationService) CreateLocation(gameId int, location *models.Location) (*models.Location, error) {
 	panic("implement me")
 }
 
-func (l LocationService) UpdateLocation(gameId int, id int, location models.Location) (models.Location, error) {
+func (l LocationService) UpdateLocation(gameId int, id int, json map[string]interface{}) (int, error) {
 	panic("implement me")
 }
 
@@ -31,7 +31,7 @@ func (l LocationService) DeleteLocation(id int) error {
 	panic("implement me")
 }
 
-func (l LocationService) GetSubLocation(gameId int, locationId int, id int) (models.SubLocation, error) {
+func (l LocationService) GetSubLocation(id int) (*models.SubLocation, error) {
 	panic("implement me")
 }
 
@@ -39,11 +39,11 @@ func (l LocationService) GetAllSubLocation(gameId int, locationId int) (models.S
 	panic("implement me")
 }
 
-func (l LocationService) CreateSubLocation(gameId int, locationId int, location models.Location) (models.SubLocation, error) {
+func (l LocationService) CreateSubLocation(gameId int, locationId int, location *models.SubLocation) (*models.SubLocation, error) {
 	panic("implement me")
 }
 
-func (l LocationService) UpdateSubLocation(gameId int, locationId int, id int, location models.Location) (models.SubLocation, error) {
+func (l LocationService) UpdateSubLocation(gameId int, locationId int, id int, json map[string]interface{}) (int, error) {
 	panic("implement me")
 }
 
